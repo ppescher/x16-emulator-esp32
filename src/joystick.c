@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <stdio.h>
+#include <string.h>
 
 struct joystick_info {
 	int                 instance_id;

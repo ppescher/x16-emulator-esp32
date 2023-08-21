@@ -130,7 +130,7 @@ int currentPosInLine= 0;                              // cursor position in the 
 int currentLineLen= 0;                                // command line buffer length
 
 int    oldRegisters[DBGMAX_ZERO_PAGE_REGISTERS];      // Old ZP Register values, for change detection
-char * oldRegChange[DBGMAX_ZERO_PAGE_REGISTERS];      // Change notification flags for output
+const char * oldRegChange[DBGMAX_ZERO_PAGE_REGISTERS];      // Change notification flags for output
 int    oldRegisterTicks = 0;                          // Last PC when change notification was run
 
 //

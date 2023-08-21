@@ -5,6 +5,10 @@
 #ifndef _RTC_H_
 #define _RTC_H_
 
+#if ESP_PLATFORM
+#define rtc_init rtc_setup
+#endif
+
 #include <stdint.h>
 
 void rtc_i2c_data(uint8_t v);

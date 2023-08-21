@@ -1,6 +1,6 @@
 #include <string.h>
 #include <SDL.h>
-#ifdef __MINGW32__
+#if defined(__MINGW32__) || ESP_PLATFORM
 #include <ctype.h>
 #endif
 #include "rendertext.h"
@@ -194,7 +194,7 @@ void DEBUGWrite(SDL_Renderer *renderer, int x, int y, int ch, SDL_Color colour) 
 //
 // *******************************************************************************************
 
-void DEBUGString(SDL_Renderer *renderer, int x, int y, char *s, SDL_Color colour) {
+void DEBUGString(SDL_Renderer *renderer, int x, int y, const char *s, SDL_Color colour) {
 	while (*s != '\0') {
 		DEBUGWrite(renderer, x++, y, *s++, colour);
 	}
