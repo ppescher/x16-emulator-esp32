@@ -123,7 +123,7 @@ int currentPosInLine= 0;                                 // cursor position in t
 int currentLineLen= 0;                                   // command line buffer length
 
 int    oldRegisters[DBGMAX_ZERO_PAGE_REGISTERS];      // Old ZP Register values, for change detection
-char * oldRegChange[DBGMAX_ZERO_PAGE_REGISTERS];      // Change notification flags for output
+const char * oldRegChange[DBGMAX_ZERO_PAGE_REGISTERS];      // Change notification flags for output
 int    oldRegisterTicks = 0;                          // Last PC when change notification was run
 
 //
@@ -652,7 +652,7 @@ static void DEBUGRenderCode(int lines, int initialPC) {
 //
 // *******************************************************************************************
 
-static char *labels[] = { "NV-BDIZC","","","A","X","Y","","BKA","BKO", "PC","SP","","BRK","", "VA","VD0","VD1","VCT", NULL };
+static const char *labels[] = { "NV-BDIZC","","","A","X","Y","","BKA","BKO", "PC","SP","","BRK","", "VA","VD0","VD1","VCT", NULL };
 
 
 static int DEBUGRenderRegisters(void) {

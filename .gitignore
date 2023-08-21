@@ -10,6 +10,7 @@ rom.bin
 chargen.bin
 .vscode/
 .idea/
+.pio/
 x16emu.data
 x16emu.html
 x16emu.html.mem

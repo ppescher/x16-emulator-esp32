@@ -11,7 +11,7 @@ extern int yPos;
 
 void DEBUGInitChars(SDL_Renderer *renderer);
 void DEBUGWrite(SDL_Renderer *renderer, int x, int y, int ch, SDL_Color colour);
-void DEBUGString(SDL_Renderer *renderer, int x, int y, char *s, SDL_Color colour);
+void DEBUGString(SDL_Renderer *renderer, int x, int y, const char *s, SDL_Color colour);
 char *ltrim(char *s);
 
 #endif

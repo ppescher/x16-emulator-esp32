@@ -296,7 +296,7 @@ video_reset()
 }
 
 bool
-video_init(int window_scale, float screen_x_scale, char *quality, bool fullscreen, float opacity)
+video_init(int window_scale, float screen_x_scale, const char *quality, bool fullscreen, float opacity)
 {
 	uint32_t window_flags = SDL_WINDOW_ALLOW_HIGHDPI;
 

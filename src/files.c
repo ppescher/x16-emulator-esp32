@@ -12,6 +12,7 @@
 #include <SDL.h>
 #include <zlib.h>
 #include <inttypes.h>
+#include <stdio.h>
 
 struct x16file
 {

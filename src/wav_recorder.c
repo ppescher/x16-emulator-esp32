@@ -8,6 +8,7 @@
 #include "audio.h"
 #include "glue.h"
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #pragma pack(push, 1)

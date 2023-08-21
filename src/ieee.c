@@ -1059,7 +1059,7 @@ create_cwd_listing(uint8_t *data)
 
 
 
-static char*
+static const char*
 error_string(int e)
 {
 	switch(e) {
