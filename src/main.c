@@ -13,7 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
-#ifdef __MINGW32__
+#if defined(__MINGW32__) || ESP_PLATFORM
 #include <ctype.h>
 #endif
 #include "cpu/fake6502.h"
@@ -53,7 +53,7 @@ void *emulator_loop(void *param);
 void emscripten_main_loop(void);
 
 // This must match the KERNAL's set!
-char *keymaps[] = {
+const char *keymaps[] = {
 	"en-us",
 	"en-us-int",
 	"en-gb",
@@ -122,7 +122,7 @@ uint8_t keymap = 0; // KERNAL's default
 int window_scale = 1;
 float screen_x_scale = 1.0;
 float window_opacity = 1.0;
-char *scale_quality = "best";
+const char *scale_quality = "best";
 bool test_init_complete=false;
 bool headless = false;
 bool fullscreen = false;
@@ -595,7 +595,7 @@ void no_fluidsynth_warning(void)
 int
 main(int argc, char **argv)
 {
-	char *rom_filename = "rom.bin";
+	const char *rom_filename = "rom.bin";
 	char rom_path_data[PATH_MAX];
 
 	char *rom_path = rom_path_data;
