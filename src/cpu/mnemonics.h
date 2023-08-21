@@ -247,7 +247,7 @@ static const char *mnemonics_c02[256] = {
 	/* $D8 */ "cld ",
 	/* $D9 */ "cmp $%04x,y",
 	/* $DA */ "phx ",
-	/* $DB */ "dbg ",
+	/* $DB */ "stp ",
 	/* $DC */ "nop ",
 	/* $DD */ "cmp $%04x,x",
 	/* $DE */ "dec $%04x,x",
