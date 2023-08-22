@@ -330,7 +330,7 @@ cartridge_define_bank_range(uint8_t start_bank, uint8_t end_bank, uint8_t bank_t
 }
 
 bool
-cartridge_import_files(char **bin_files, int num_files, uint8_t start_bank, uint8_t bank_type, uint8_t fill_value)
+cartridge_import_files(const char *bin_files[], int num_files, uint8_t start_bank, uint8_t bank_type, uint8_t fill_value)
 {
 	if(start_bank < 32) {
 		return false;

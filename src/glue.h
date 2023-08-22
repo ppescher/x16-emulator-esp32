@@ -20,7 +20,7 @@
 
 #define RAM_SIZE (0xa000 + num_ram_banks * 8192) /* $0000-$9FFF + banks at $A000-$BFFF */
 #define ROM_SIZE (NUM_ROM_BANKS * 16384)   /* banks at $C000-$FFFF */
-#define CART_SIZE (NUM_CART_BANKS * 16384)  /* expansion banks at $C000-$FFFF */
+//#define CART_SIZE (NUM_CART_BANKS * 16384)  /* expansion banks at $C000-$FFFF */
 
 #define WINDOW_TITLE "Commander X16"
 
@@ -55,7 +55,7 @@ typedef enum {
 extern struct regs regs;
 extern uint16_t opcode_addr;
 extern uint8_t *RAM;
-extern uint8_t ROM[];
+extern uint8_t *ROM;
 extern uint8_t *CART;
 
 extern uint16_t num_ram_banks;
@@ -68,7 +68,7 @@ extern echo_mode_t echo_mode;
 extern bool save_on_exit;
 extern bool disable_emu_cmd_keys;
 extern gif_recorder_state_t record_gif;
-extern char *gif_path;
+extern char gif_path[];
 extern uint8_t *fsroot_path;
 extern uint8_t *startin_path;
 extern uint8_t keymap;

@@ -24,7 +24,7 @@ uint8_t ram_bank;
 uint8_t rom_bank;
 
 uint8_t *RAM;
-uint8_t ROM[ROM_SIZE];
+uint8_t *ROM;
 extern uint8_t *CART;
 
 static uint8_t addr_ym = 0;
@@ -51,6 +51,8 @@ void cpuio_write(uint8_t reg, uint8_t value);
 void
 memory_init()
 {
+	ROM = malloc(ROM_SIZE);
+	
 	// Initialize RAM array
 	RAM = calloc(RAM_SIZE, sizeof(uint8_t));
 
@@ -64,7 +66,6 @@ memory_init()
 			ROM_banked_writes[bank] = calloc(16384, sizeof(uint64_t));
 		}
 	}
-
 
 	// Randomize all RAM (if option selected)
 	if (randomizeRAM) {
