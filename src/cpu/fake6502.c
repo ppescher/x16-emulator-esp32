@@ -149,8 +149,8 @@ extern void vp6502();
 #include "support.h"
 #include "modes.h"
 
-static void (*addrtable[256])();
-static void (*optable[256])();
+static void (*const addrtable[256])();
+static void (*const optable[256])();
 
 static uint16_t getvalue() {
     if (addrtable[opcode] == acc) return((uint16_t)a);

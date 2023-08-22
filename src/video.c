@@ -88,7 +88,7 @@ static bool is_fullscreen = false;
 bool mouse_grabbed = false;
 bool kernal_mouse_enabled = false;
 
-static uint8_t video_ram[0x20000];
+static uint8_t *video_ram;
 static uint8_t palette[256 * 2];
 static uint8_t sprite_data[128][8];
 
@@ -183,9 +183,9 @@ float ntsc_half_cnt;
 uint16_t ntsc_scan_pos_y;
 int frame_count = 0;
 
-static uint8_t framebuffer[SCREEN_WIDTH * SCREEN_HEIGHT * 4];
+static uint8_t *framebuffer;
 #ifndef __EMSCRIPTEN__
-static uint8_t png_buffer[SCREEN_WIDTH * SCREEN_HEIGHT * 3];
+static uint8_t *png_buffer;
 #endif
 
 static GifWriter gif_writer;
@@ -299,12 +299,17 @@ bool
 video_init(int window_scale, float screen_x_scale, const char *quality, bool fullscreen, float opacity)
 {
 	uint32_t window_flags = SDL_WINDOW_ALLOW_HIGHDPI;
+	
+	framebuffer = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
 
 #ifdef __EMSCRIPTEN__
 	// Setting this flag would render the web canvas outside of its bounds on high dpi screens
 	window_flags &= ~SDL_WINDOW_ALLOW_HIGHDPI;
+#else
+	png_buffer = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 3);
 #endif
-
+	video_ram = malloc(0x20000);
+	
 	video_reset();
 
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, quality);

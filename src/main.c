@@ -112,8 +112,8 @@ bool has_serial = false;
 bool no_ieee_intercept = false;
 bool has_via2 = false;
 gif_recorder_state_t record_gif = RECORD_GIF_DISABLED;
-char *gif_path = NULL;
-char *wav_path = NULL;
+char gif_path[PATH_MAX];
+const char *wav_path = NULL;
 uint8_t *fsroot_path = NULL;
 uint8_t *startin_path = NULL;
 uint8_t keymap = 0; // KERNAL's default
@@ -127,7 +127,7 @@ bool fullscreen = false;
 bool testbench = false;
 bool enable_midline = false;
 bool ym2151_irq_support = false;
-char *cartridge_path = NULL;
+const char *cartridge_path = NULL;
 
 uint8_t MHZ = 8;
 
@@ -142,7 +142,7 @@ bool prg_finished_loading;
 int prg_override_start = -1;
 bool run_after_load = false;
 
-char *nvram_path = NULL;
+const char *nvram_path = NULL;
 
 #ifdef TRACE
 #include "rom_labels.h"
@@ -500,15 +500,14 @@ usage_keymap()
 }
 
 int
-main(int argc, char **argv)
+main(int argc, const char *argv[])
 {
 	const char *rom_filename = "rom.bin";
-	char rom_path_data[PATH_MAX];
+	char rom_path[PATH_MAX];
 
-	char *rom_path = rom_path_data;
-	char *prg_path = NULL;
-	char *bas_path = NULL;
-	char *sdcard_path = NULL;
+	const char *prg_path = NULL;
+	const char *bas_path = NULL;
+	const char *sdcard_path = NULL;
 	bool run_test = false;
 	int test_number = 0;
 	int audio_buffers = 8;
@@ -536,7 +535,8 @@ main(int argc, char **argv)
 			if (!argc || argv[0][0] == '-') {
 				usage();
 			}
-			rom_path = argv[0];
+			strncpy(rom_path, argv[0], PATH_MAX-1);
+			rom_path[PATH_MAX-1] = 0;
 			argc--;
 			argv++;
 		} else if (!strcmp(argv[0], "-ram")) {
@@ -667,7 +667,7 @@ main(int argc, char **argv)
 			if (!argc || argv[0][0] == '-') {
 				usage();
 			}
-			for (char *p = argv[0]; *p; p++) {
+			for (const char *p = argv[0]; *p; p++) {
 				switch (tolower(*p)) {
 					case 'k':
 						log_keyboard = true;
@@ -694,7 +694,7 @@ main(int argc, char **argv)
 			dump_ram = false;
 			dump_bank = false;
 			dump_vram = false;
-			for (char *p = argv[0]; *p; p++) {
+			for (const char *p = argv[0]; *p; p++) {
 				switch (tolower(*p)) {
 					case 'c':
 						dump_cpu = true;
@@ -722,7 +722,8 @@ main(int argc, char **argv)
 			if (!argc || argv[0][0] == '-') {
 				usage();
 			}
-			gif_path = argv[0];
+			strncpy(gif_path, argv[0], PATH_MAX-1);
+			gif_path[PATH_MAX-1] = 0;
 			argv++;
 			argc--;
 		} else if (!strcmp(argv[0], "-wav")) {
@@ -802,7 +803,7 @@ main(int argc, char **argv)
 			if(!argc || argv[0][0] == '-') {
 				usage();
 			}
-			for(char *p = argv[0]; *p; p++) {
+			for(const char *p = argv[0]; *p; p++) {
 				switch(tolower(*p)) {
 				case '1':
 					window_scale = 1;
