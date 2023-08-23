@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -1898,7 +1899,7 @@ int
 MACPTR(uint16_t addr, uint16_t *c, uint8_t stream_mode)
 {
 	int ret = 0;
-	int count = *c ?: 256;
+	int count = *c ? *c : 256;
 	uint8_t ram_bank = read6502(0);
 	int i = 0;
 	if (channels[channel].f) {
