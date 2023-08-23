@@ -184,7 +184,16 @@ float ntsc_half_cnt;
 uint16_t ntsc_scan_pos_y;
 int frame_count = 0;
 
-static uint8_t *framebuffer;
+typedef union {
+	struct {
+	uint16_t b : 5;
+	uint16_t g : 6;
+	uint16_t r : 5;
+	};
+	uint16_t v;
+} pixel_t;
+
+static pixel_t *framebuffer;
 #ifndef __EMSCRIPTEN__
 static uint8_t *png_buffer;
 #endif
@@ -301,7 +310,7 @@ video_init(int window_scale, float screen_x_scale, const char *quality, bool ful
 {
 	uint32_t window_flags = SDL_WINDOW_ALLOW_HIGHDPI;
 	
-	framebuffer = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+	framebuffer = calloc(SCREEN_WIDTH * SCREEN_HEIGHT, sizeof(pixel_t));
 
 #ifdef __EMSCRIPTEN__
 	// Setting this flag would render the web canvas outside of its bounds on high dpi screens
@@ -322,7 +331,7 @@ video_init(int window_scale, float screen_x_scale, const char *quality, bool ful
 	SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH * screen_x_scale, SCREEN_HEIGHT);
 
 	sdlTexture = SDL_CreateTexture(renderer,
-									SDL_PIXELFORMAT_RGB888,
+									SDL_PIXELFORMAT_RGB565,
 									SDL_TEXTUREACCESS_STREAMING,
 									SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -548,9 +557,9 @@ screenshot(void)
 
 	// The framebuffer stores pixels in BRGA but we want RGB:
 	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
-		png_buffer[(i*3)+0] = framebuffer[(i*4)+2];
-		png_buffer[(i*3)+1] = framebuffer[(i*4)+1];
-		png_buffer[(i*3)+2] = framebuffer[(i*4)+0];
+		png_buffer[(i*3)+0] = framebuffer[i].r;
+		png_buffer[(i*3)+1] = framebuffer[i].g;
+		png_buffer[(i*3)+2] = framebuffer[i].b;
 	}
 
 	if (stbi_write_png(path, SCREEN_WIDTH, SCREEN_HEIGHT, 3, png_buffer, SCREEN_WIDTH*3)) {
@@ -597,7 +606,7 @@ refresh_sprite_properties(const uint16_t sprite)
 
 struct video_palette
 {
-	uint32_t entries[256];
+	pixel_t entries[256];
 	bool dirty;
 };
 
@@ -627,7 +636,10 @@ refresh_palette() {
 			}
 		}
 
-		video_palette.entries[i] = (uint32_t)(r << 16) | ((uint32_t)g << 8) | ((uint32_t)b);
+		//video_palette.entries[i] = (uint32_t)(r << 16) | ((uint32_t)g << 8) | ((uint32_t)b);
+		video_palette.entries[i].r = r >> 3;
+		video_palette.entries[i].g = g >> 2;
+		video_palette.entries[i].b = b >> 3;
 	}
 	video_palette.dirty = false;
 }
@@ -1151,9 +1163,9 @@ render_line(uint16_t y, float scan_pos_x)
 	}
 
 	// Look up all color indices.
-	uint32_t* framebuffer4_begin = ((uint32_t*)framebuffer) + (y * SCREEN_WIDTH) + s_pos_x_p;
+	pixel_t* framebuffer4_begin = framebuffer + (y * SCREEN_WIDTH) + s_pos_x_p;
 	{
-		uint32_t* framebuffer4 = framebuffer4_begin;
+		pixel_t* framebuffer4 = framebuffer4_begin;
 		for (uint16_t x = s_pos_x_p; x < s_pos_x; x++) {
 			*framebuffer4++ = video_palette.entries[col_line[x]];
 		}
@@ -1161,7 +1173,7 @@ render_line(uint16_t y, float scan_pos_x)
 
 	// NTSC overscan
 	if (out_mode == 2) {
-		uint32_t* framebuffer4 = framebuffer4_begin;
+		pixel_t* framebuffer4 = framebuffer4_begin;
 		for (uint16_t x = s_pos_x_p; x < s_pos_x; x++)
 		{
 			if (x < SCREEN_WIDTH * TITLE_SAFE_X ||
@@ -1170,8 +1182,8 @@ render_line(uint16_t y, float scan_pos_x)
 				y > SCREEN_HEIGHT * (1 - TITLE_SAFE_Y)) {
 
 				// Divide RGB elements by 4.
-				*framebuffer4 &= 0x00fcfcfc;
-				*framebuffer4 >>= 2;
+				framebuffer4->v &= 0x00fcfcfc;
+				framebuffer4->v >>= 2;
 			}
 			framebuffer4++;
 		}
@@ -1315,23 +1327,22 @@ video_update()
 	// for progressive modes, draw LED only on even scanlines
 	for (int y = 0; y < 4; y+=1+!!((reg_composer[0] & 0x0b) > 0x09)) {
 		for (int x = SCREEN_WIDTH - 8; x < SCREEN_WIDTH; x++) {
-			uint8_t b = framebuffer[(y * SCREEN_WIDTH + x) * 4 + 0];
-			uint8_t g = framebuffer[(y * SCREEN_WIDTH + x) * 4 + 1];
-			uint8_t r = framebuffer[(y * SCREEN_WIDTH + x) * 4 + 2];
+			uint8_t b = framebuffer[y * SCREEN_WIDTH + x].b;
+			uint8_t g = framebuffer[y * SCREEN_WIDTH + x].g;
+			uint8_t r = framebuffer[y * SCREEN_WIDTH + x].r;
 			r = (uint32_t)r * (255 - activity_led) / 255 + activity_led;
 			g = (uint32_t)g * (255 - activity_led) / 255;
 			b = (uint32_t)b * (255 - activity_led) / 255;
-			framebuffer[(y * SCREEN_WIDTH + x) * 4 + 0] = b;
-			framebuffer[(y * SCREEN_WIDTH + x) * 4 + 1] = g;
-			framebuffer[(y * SCREEN_WIDTH + x) * 4 + 2] = r;
-			framebuffer[(y * SCREEN_WIDTH + x) * 4 + 3] = 0x00;
+			framebuffer[y * SCREEN_WIDTH + x].b = b;
+			framebuffer[y * SCREEN_WIDTH + x].g = g;
+			framebuffer[y * SCREEN_WIDTH + x].r = r;
 		}
 	}
 
-	SDL_UpdateTexture(sdlTexture, NULL, framebuffer, SCREEN_WIDTH * 4);
+	SDL_UpdateTexture(sdlTexture, NULL, framebuffer, SCREEN_WIDTH * sizeof(pixel_t));
 
 	if (record_gif > RECORD_GIF_PAUSED) {
-		if(!GifWriteFrame(&gif_writer, framebuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 2, 8, false)) {
+		if(true /*!GifWriteFrame(&gif_writer, framebuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 2, 8, false)*/) {
 			// if that failed, stop recording
 			GifEnd(&gif_writer);
 			record_gif = RECORD_GIF_DISABLED;
@@ -1993,7 +2004,7 @@ void video_write(uint8_t reg, uint8_t value) {
 				// progressive mode on, clear the framebuffer
 				if (((reg_composer[0] & 0x8) == 0 && (value & 0x8)) ||
 					((reg_composer[0] & 0x3) == 1 && (value & 0x3) > 1 && (value & 0x8))) {
-					memset(framebuffer, 0x00, SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+					memset(framebuffer, 0x00, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(pixel_t));
 				}
 
 				// interlace field bit is read-only
