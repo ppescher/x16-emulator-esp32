@@ -7,6 +7,7 @@
 #define _POSIX_C_SOURCE 1
 #endif
 
+#include <unistd.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdbool.h>

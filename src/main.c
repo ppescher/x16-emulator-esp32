@@ -1138,6 +1138,8 @@ main(int argc, const char *argv[])
 		}
 	}
 
+	memory_init();
+
 	SDL_RWops *f = SDL_RWFromFile(rom_path, "rb");
 	if (!f) {
 		printf("Cannot open %s!\n", rom_path);
@@ -1252,8 +1254,6 @@ main(int argc, const char *argv[])
 	}
 
 	wav_recorder_set_path(wav_path);
-
-	memory_init();
 
 	joystick_init();
 

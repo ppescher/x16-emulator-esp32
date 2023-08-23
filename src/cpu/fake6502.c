@@ -166,7 +166,7 @@ static uint16_t getvalue(bool use16Bit) {
     return read6502(ea);
 }
 
-__attribute__((unused)) static uint16_t getvalue16() {
+static uint16_t getvalue16() {
     return((uint16_t)read6502(ea) | ((uint16_t)read6502(ea+1) << 8));
 }
 

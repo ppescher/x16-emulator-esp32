@@ -18,6 +18,7 @@
 #include "i2c.h"
 #include "audio.h"
 
+#include <unistd.h>
 #include <limits.h>
 #include <stdint.h>
 #include <time.h>
