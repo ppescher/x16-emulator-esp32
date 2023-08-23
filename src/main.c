@@ -1156,6 +1156,7 @@ main(int argc, const char *argv[])
 		num_banks = NUM_MAX_BANKS;
 		num_ram_banks = NUM_MAX_RAM_BANKS;
 	}
+	memory_init();
 
 	SDL_RWops *f = SDL_RWFromFile(rom_path, "rb");
 	if (!f) {
@@ -1275,8 +1276,6 @@ main(int argc, const char *argv[])
 	}
 
 	wav_recorder_set_path(wav_path);
-
-	memory_init();
 
 	joystick_init();
 
