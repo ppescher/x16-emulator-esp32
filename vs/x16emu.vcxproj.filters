@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="File di origine">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="File di intestazione">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="File di risorse">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\audio.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\cartridge.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\debugger.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\disasm.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\files.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\i2c.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\icon.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ieee.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\iso_8859_15.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\javascript_interface.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\joystick.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\keyboard.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\memory.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\rendertext.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\rtc.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sdcard.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\serial.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\smc.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\testbench.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\timing.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vera_pcm.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vera_psg.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vera_spi.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\via.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\wav_recorder.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ymglue.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\extern\ymfm\src\ymfm_adpcm.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\extern\ymfm\src\ymfm_opl.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\extern\ymfm\src\ymfm_opm.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\extern\ymfm\src\ymfm_pcm.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\cpu\fake6502.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libunistd\unistd\dirent.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libunistd\unistd\unistd.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\main.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libunistd\unistd\clock_gettime.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\audio.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cartridge.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\debugger.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\disasm.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\files.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\glue.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\i2c.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\icon.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ieee.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\iso_8859_15.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\joystick.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\keyboard.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\memory.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\rendertext.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\rom_symbols.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\rtc.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\sdcard.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\serial.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\smc.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\testbench.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\timing.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\utf8.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\utf8_encode.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vera_pcm.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vera_psg.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vera_spi.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\version.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\via.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\wav_recorder.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ymglue.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\extern\ymfm\src\ymfm.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\extern\ymfm\src\ymfm_adpcm.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\extern\ymfm\src\ymfm_fm.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\extern\ymfm\src\ymfm_fm.ipp">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\extern\ymfm\src\ymfm_opl.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\extern\ymfm\src\ymfm_opm.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\extern\ymfm\src\ymfm_pcm.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\extern\include\gif.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\extern\include\stb_image_write.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cpu\65c02.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cpu\fake6502.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cpu\instructions.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cpu\mnemonics.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cpu\modes.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cpu\support.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cpu\tables.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
