@@ -5,9 +5,16 @@
 #include "glue.h"
 #include "video.h"
 #include "cpu/fake6502.h"
-#include <SDL.h>
 #include <stdio.h>
-#include <unistd.h>
+#if ESP_PLATFORM
+#	include <Arduino.h>
+#	define SDL_GetTicks millis
+#	define sleep delay
+#	define usleep delayMicroseconds
+#else
+#	include <SDL.h>
+#	include <unistd.h>
+#endif
 
 uint32_t frames;
 uint32_t sdlTicks_base;
@@ -42,7 +49,7 @@ timing_update()
 		}
 		usleep(diff_time);
 	}
-
+/*
 	if (sdlTicks - last_perf_update > 5000) {
 		uint32_t perf = (cpu_ticks - last_perf_cpu_ticks) / (MHZ * 50000);
 
@@ -50,7 +57,6 @@ timing_update()
 			sprintf(window_title, WINDOW_TITLE " (%d%%)%s", perf, mouse_grabbed ? MOUSE_GRAB_MSG : "");
 		} else {
 			sprintf(window_title, WINDOW_TITLE "%s", mouse_grabbed ? MOUSE_GRAB_MSG : "");
-			
 		}
 
 		video_update_title(window_title);
@@ -58,7 +64,7 @@ timing_update()
 		last_perf_cpu_ticks = cpu_ticks;
 		last_perf_update = sdlTicks;
 	}
-
+*/
 	if (log_speed) {
 		float frames_behind = -((float)diff_time * 6e-5);
 		int load = (int)((1 + frames_behind) * 100);

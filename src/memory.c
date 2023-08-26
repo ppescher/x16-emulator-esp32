@@ -20,8 +20,8 @@
 uint8_t ram_bank;
 uint8_t rom_bank;
 
-uint8_t *RAM;
-uint8_t *ROM;
+uint8_t *RAM = NULL;
+uint8_t *ROM = NULL;
 extern uint8_t *CART;
 
 static uint8_t addr_ym = 0;
@@ -39,7 +39,8 @@ memory_init()
 {
 	// Initialize RAM array
 	RAM = calloc(RAM_SIZE, sizeof(uint8_t));
-	ROM = malloc(ROM_SIZE);
+	ROM = calloc(ROM_SIZE, sizeof(uint8_t));
+printf("RAM = %p ROM = %p\n", RAM, ROM);
 	
 	// Randomize all RAM (if option selected)
 	if (randomizeRAM) {

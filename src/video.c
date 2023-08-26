@@ -193,9 +193,9 @@ typedef union {
 	uint16_t v;
 } pixel_t;
 
-static pixel_t *framebuffer;
+static pixel_t *framebuffer = NULL;
 #ifndef __EMSCRIPTEN__
-static uint8_t *png_buffer;
+static uint8_t *png_buffer = NULL;
 #endif
 
 static GifWriter gif_writer;
@@ -312,13 +312,17 @@ video_init(int window_scale, float screen_x_scale, const char *quality, bool ful
 	
 	framebuffer = calloc(SCREEN_WIDTH * SCREEN_HEIGHT, sizeof(pixel_t));
 
+#if ESP_PLATFORM
+	extern void vga_init();
+	vga_init();
+#endif
+
 #ifdef __EMSCRIPTEN__
 	// Setting this flag would render the web canvas outside of its bounds on high dpi screens
 	window_flags &= ~SDL_WINDOW_ALLOW_HIGHDPI;
-#else
-	png_buffer = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 3);
 #endif
 	video_ram = malloc(0x20000);
+printf("Video RAM = %p framebuffer = %p\n", video_ram, framebuffer);
 	
 	video_reset();
 
@@ -553,6 +557,7 @@ screenshot(void)
 	const time_t now = time(NULL);
 	strftime(path, PATH_MAX, "x16emu-%Y-%m-%d-%H-%M-%S.png", localtime(&now));
 
+	png_buffer = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 3);
 	memset(png_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * 3);
 
 	// The framebuffer stores pixels in BRGA but we want RGB:
@@ -1339,10 +1344,15 @@ video_update()
 		}
 	}
 
+#if ESP_PLATFORM
+	extern void vga_display(void* framebuffer);
+	vga_display(framebuffer);
+#else
 	SDL_UpdateTexture(sdlTexture, NULL, framebuffer, SCREEN_WIDTH * sizeof(pixel_t));
+#endif
 
 	if (record_gif > RECORD_GIF_PAUSED) {
-		if(true /*!GifWriteFrame(&gif_writer, framebuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 2, 8, false)*/) {
+		if(false /*!GifWriteFrame(&gif_writer, framebuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 2, 8, false)*/) {
 			// if that failed, stop recording
 			GifEnd(&gif_writer);
 			record_gif = RECORD_GIF_DISABLED;
@@ -1353,6 +1363,7 @@ video_update()
 		}
 	}
 
+#if !ESP_PLATFORM
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, sdlTexture, NULL, NULL);
 
@@ -1363,9 +1374,15 @@ video_update()
 	}
 
 	SDL_RenderPresent(renderer);
+#endif
 
 	SDL_Event event;
+#if ESP_PLATFORM
+	extern int vga_poll_event(SDL_Event * event);
+	while (vga_poll_event(&event)) {
+#else
 	while (SDL_PollEvent(&event)) {
+#endif
 		if (event.type == SDL_QUIT) {
 			return false;
 		}
