@@ -517,8 +517,11 @@ main(int argc, const char *argv[])
 
 	run_after_load = false;
 
-	char *base_path = SDL_GetBasePath();
-
+#if ESP_PLATFORM
+	const char *base_path = "/sdcard/";
+#else
+	const char *base_path = SDL_GetBasePath();
+#endif
 	// This causes the emulator to load ROM data from the executable's directory when
 	// no ROM file is specified on the command line.
 	memcpy(rom_path, base_path, strlen(base_path) + 1);
@@ -960,9 +963,16 @@ main(int argc, const char *argv[])
 		printf("Cannot open %s!\n", rom_path);
 		exit(1);
 	}
-	size_t rom_size = SDL_RWread(f, ROM, ROM_SIZE, 1);
-	(void)rom_size;
+	size_t rom_size = 0, rom_read;
+	do {
+		rom_read = SDL_RWread(f, ROM+rom_size, 1, ROM_SIZE-rom_size);
+		rom_size += rom_read;
+	} while (rom_read > 0 && rom_size < ROM_SIZE);
 	SDL_RWclose(f);
+printf("ROM loaded %u (%02X %02X ... %02X %02X)\n\n", rom_size, ROM[0], ROM[1], ROM[rom_size-2], ROM[rom_size-1]);
+// 	for (size_t i=0; i<rom_size; ++i)
+// 		printf("%02X",ROM[i]);
+// printf("\n\n");
 
 	if (nvram_path) {
 		SDL_RWops *f = SDL_RWFromFile(nvram_path, "rb");
