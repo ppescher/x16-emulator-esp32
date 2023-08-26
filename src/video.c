@@ -49,7 +49,7 @@
 
 // both VGA and NTSC
 #define SCAN_HEIGHT 525
-#define PIXEL_FREQ 25.0
+#define PIXEL_FREQ 25 //MHz
 
 // VGA
 #define VGA_SCAN_WIDTH 800
@@ -178,9 +178,9 @@ static const uint8_t vera_version_string[] = {'V',
 	VERA_VERSION_PATCH
 };
 
-float vga_scan_pos_x;
+uint32_t vga_scan_pos_x;
 uint16_t vga_scan_pos_y;
-float ntsc_half_cnt;
+uint32_t ntsc_half_cnt;
 uint16_t ntsc_scan_pos_y;
 int frame_count = 0;
 
@@ -1003,7 +1003,7 @@ static uint8_t calculate_line_col_index(uint8_t spr_zindex, uint8_t spr_col_inde
 }
 
 static void
-render_line(uint16_t y, float scan_pos_x)
+render_line(uint16_t y, uint32_t scan_pos_x)
 {
 	static uint16_t y_prev;
 	static uint16_t s_pos_x_p;
@@ -1063,7 +1063,7 @@ render_line(uint16_t y, float scan_pos_x)
 		return;
 	}
 
-	uint16_t s_pos_x = round(scan_pos_x);
+	uint16_t s_pos_x = (uint16_t)(scan_pos_x);
 	if (s_pos_x > SCREEN_WIDTH) {
 		s_pos_x = SCREEN_WIDTH;
 	}
@@ -1214,12 +1214,16 @@ update_isr_and_coll(uint16_t y, uint16_t compare)
 }
 
 bool
-video_step(float mhz, float steps, bool midline)
+video_step(uint32_t mhz, uint32_t steps, bool midline)
 {
+	static uint32_t carry = 0;
 	uint16_t y = 0;
 	bool ntsc_mode = reg_composer[0] & 2;
 	bool new_frame = false;
-	vga_scan_pos_x += PIXEL_FREQ * steps / mhz;
+	uint32_t num = carry + PIXEL_FREQ * steps;
+	carry = num % mhz;
+	num /= mhz;
+	vga_scan_pos_x += num;
 	if (vga_scan_pos_x > VGA_SCAN_WIDTH) {
 		vga_scan_pos_x -= VGA_SCAN_WIDTH;
 		if (!ntsc_mode) {
@@ -1241,7 +1245,7 @@ video_step(float mhz, float steps, bool midline)
 			render_line(vga_scan_pos_y - VGA_Y_OFFSET, vga_scan_pos_x);
 		}
 	}
-	ntsc_half_cnt += PIXEL_FREQ * steps / mhz;
+	ntsc_half_cnt += num;
 	if (ntsc_half_cnt > NTSC_HALF_SCAN_WIDTH) {
 		ntsc_half_cnt -= NTSC_HALF_SCAN_WIDTH;
 		if (ntsc_mode) {

@@ -49,9 +49,9 @@ timing_update()
 		}
 		usleep(diff_time);
 	}
-/*
+#if !ESP_PLATFORM
 	if (sdlTicks - last_perf_update > 5000) {
-		uint32_t perf = (cpu_ticks - last_perf_cpu_ticks) / (MHZ * 50000);
+		uint32_t perf = (uint32_t) ((cpu_ticks - last_perf_cpu_ticks) / (MHZ * 50000ll));
 
 		if (perf < 100 || warp_mode) {
 			sprintf(window_title, WINDOW_TITLE " (%d%%)%s", perf, mouse_grabbed ? MOUSE_GRAB_MSG : "");
@@ -64,14 +64,15 @@ timing_update()
 		last_perf_cpu_ticks = cpu_ticks;
 		last_perf_update = sdlTicks;
 	}
-*/
+#endif
 	if (log_speed) {
-		float frames_behind = -((float)diff_time * 6e-5);
-		int load = (int)((1 + frames_behind) * 100);
-		printf("Load: %d%%\n", load > 100 ? 100 : load);
-
-		if ((int)frames_behind > 0) {
-			printf("Rendering is behind %d frames.\n", -(int)frames_behind);
+		static uint32_t oldTicks = 0;
+		int32_t frames_behind = (int32_t)(diff_time * 60ll / 1000000ll);
+		int load = (int)((1 - frames_behind) * 100);
+		printf("Frame %u(ms), Load: %d%%\n", sdlTicks-oldTicks, load > 100 ? 100 : load);
+		oldTicks = sdlTicks;
+		if (frames_behind < 0) {
+			printf("Rendering is behind %d frames.\n", frames_behind);
 		} else {
 		}
 	}
