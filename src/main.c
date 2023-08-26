@@ -1276,8 +1276,7 @@ printf("ROM loaded %u (%02X %02X ... %02X %02X)\n\n", rom_size, ROM[0], ROM[1], 
 #ifdef SDL_HINT_SCREENSAVER_INHIBIT_ACTIVITY_NAME
 		SDL_SetHint(SDL_HINT_SCREENSAVER_INHIBIT_ACTIVITY_NAME, "Emulating modern retro awesomeness");
 #endif
-		int e = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO | SDL_INIT_TIMER);
-		if (e < 0) {
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS /*| SDL_INIT_GAMECONTROLLER*/ | SDL_INIT_AUDIO /*| SDL_INIT_TIMER*/)) {
 			fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
 			exit(-1);
 		}

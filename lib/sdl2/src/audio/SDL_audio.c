@@ -1302,11 +1302,13 @@ open_audio_device(const char *devname, int iscapture,
     /* Create a mutex for locking the sound buffers */
     if (!current_audio.impl.SkipMixerLock) {
         device->mixer_lock = SDL_CreateMutex();
+#if !SDL_THREADS_DISABLED
         if (device->mixer_lock == NULL) {
             close_audio_device(device);
             SDL_SetError("Couldn't create mixer lock");
             return 0;
         }
+#endif
     }
 
     if (current_audio.impl.OpenDevice(device, handle, devname, iscapture) < 0) {
@@ -1422,12 +1424,13 @@ open_audio_device(const char *devname, int iscapture,
 
         SDL_snprintf(threadname, sizeof (threadname), "SDLAudioDev%d", (int) device->id);
         device->thread = SDL_CreateThreadInternal(iscapture ? SDL_CaptureAudio : SDL_RunAudio, threadname, stacksize, device);
-
+#if !SDL_THREADS_DISABLED
         if (device->thread == NULL) {
             close_audio_device(device);
             SDL_SetError("Couldn't create audio thread");
             return 0;
         }
+#endif
     }
 
     return device->id;
