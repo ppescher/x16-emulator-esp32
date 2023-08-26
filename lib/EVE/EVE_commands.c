@@ -256,17 +256,25 @@ void EVE_memWrite_flash_buffer(uint32_t ft_address, const uint8_t *p_data, uint3
 /* Helper function, write a block of memory from the SRAM of the host controller to EVE. */
 void EVE_memWrite_sram_buffer(uint32_t ft_address, const uint8_t *p_data, uint32_t len)
 {
+    extern spi_device_handle_t EVE_spi_device;
+    static spi_transaction_t EVE_spi_transaction[4] = {};
+    static int index = 0, queued = 0;
     if (p_data != NULL && len > 0)
     {
-        extern spi_device_handle_t EVE_spi_device;
-        spi_transaction_t EVE_spi_transaction = {};
-        EVE_spi_transaction.tx_buffer = p_data;
-        EVE_spi_transaction.length = len * 8U;
-        EVE_spi_transaction.addr = ft_address | (MEM_WRITE << 16U);
-        EVE_spi_transaction.flags = SPI_TRANS_MODE_QIO|SPI_TRANS_MODE_DIOQIO_ADDR;
-        digitalWrite(EVE_CS, LOW); /* make EVE listen */
-        EVE_dma_busy = 42;
-        spi_device_transmit(EVE_spi_device, &EVE_spi_transaction);
+        if (queued == 4)
+        {
+            spi_transaction_t* trans = NULL;
+            spi_device_get_trans_result(EVE_spi_device, &trans, portMAX_DELAY);
+            queued--;
+        }
+        EVE_spi_transaction[index].tx_buffer = p_data;
+        EVE_spi_transaction[index].length = len * 8U;
+        EVE_spi_transaction[index].addr = ft_address | (MEM_WRITE << 16U);
+        EVE_spi_transaction[index].flags = SPI_TRANS_MODE_QIO|SPI_TRANS_MODE_DIOQIO_ADDR;
+        spi_device_queue_trans(EVE_spi_device, &EVE_spi_transaction[index], portMAX_DELAY);
+        index = (index + 1) & 3;
+        queued++;
+        //spi_device_transmit(EVE_spi_device, &EVE_spi_transaction);
         //while (EVE_dma_busy != 0) DELAY_MS(0);
     }
 }
