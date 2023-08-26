@@ -34,6 +34,7 @@
 #define HAVE_MALLOC     1
 #define HAVE_STDARG_H   1
 #define HAVE_STDDEF_H   1
+#define HAVE_STDIO_H    1
 
 /* Most everything except Visual Studio 2008 and earlier has stdint.h now */
 #if defined(_MSC_VER) && (_MSC_VER < 1600)
@@ -69,15 +70,15 @@ typedef unsigned long uintptr_t;
 #define SDL_LOADSO_DISABLED 1
 
 /* Enable the stub thread support (src/thread/generic/\*.c) */
-#define SDL_THREADS_DISABLED    1
+#define SDL_THREADS_DISABLED 1
 
 /* Enable the stub timer support (src/timer/dummy/\*.c) */
 #define SDL_TIMERS_DISABLED 1
 
 /* Enable the dummy video driver (src/video/dummy/\*.c) */
-#define SDL_VIDEO_DRIVER_DUMMY  1
+#define SDL_VIDEO_DRIVER_DUMMY 1
 
 /* Enable the dummy filesystem driver (src/filesystem/dummy/\*.c) */
-#define SDL_FILESYSTEM_DUMMY  1
+#define SDL_FILESYSTEM_DUMMY 1
 
 #endif /* _SDL_config_minimal_h */
