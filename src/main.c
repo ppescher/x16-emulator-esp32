@@ -136,7 +136,7 @@ uint16_t midi_card_addr;
 
 bool using_hostfs = true;
 
-uint8_t MHZ = 8;
+uint8_t MHZ = 1;//was 8
 
 #ifdef TRACE
 bool trace_mode = false;
@@ -1281,6 +1281,8 @@ printf("ROM loaded %u (%02X %02X ... %02X %02X)\n\n", rom_size, ROM[0], ROM[1], 
 #ifdef __EMSCRIPTEN__
 	emscripten_cancel_main_loop();
 	emscripten_set_main_loop(emscripten_main_loop, 0, 1);
+#elif ARDUINO
+	return 0;
 #else
 	emulator_loop(NULL);
 #endif
@@ -1711,7 +1713,7 @@ emulator_loop(void *param)
 			}
 
 			timing_update();
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || ARDUINO
 			// After completing a frame we yield back control to the browser to stay responsive
 			return 0;
 #endif

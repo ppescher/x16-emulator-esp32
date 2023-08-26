@@ -23,8 +23,8 @@
 uint8_t ram_bank;
 uint8_t rom_bank;
 
-uint8_t *RAM;
-uint8_t *ROM;
+uint8_t *RAM = NULL;
+uint8_t *ROM = NULL;
 extern uint8_t *CART;
 
 static uint8_t addr_ym = 0;
@@ -51,7 +51,10 @@ void cpuio_write(uint8_t reg, uint8_t value);
 void
 memory_init()
 {
-	ROM = malloc(ROM_SIZE);
+	// Initialize RAM array
+	RAM = calloc(RAM_SIZE, sizeof(uint8_t));
+	ROM = calloc(ROM_SIZE, sizeof(uint8_t));
+printf("RAM = %p ROM = %p\n", RAM, ROM);
 	
 	// Initialize RAM array
 	RAM = calloc(RAM_SIZE, sizeof(uint8_t));
