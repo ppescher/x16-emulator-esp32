@@ -136,7 +136,7 @@ uint16_t midi_card_addr;
 
 bool using_hostfs = true;
 
-uint8_t MHZ = 1;//was 8
+uint8_t MHZ = 8;
 
 #ifdef TRACE
 bool trace_mode = false;
@@ -1542,6 +1542,7 @@ void *
 emulator_loop(void *param)
 {
 	uint32_t old_clockticks6502 = clockticks6502;
+	bool new_frame = false;
 	for (;;) {
 		if (smc_requested_reset) machine_reset();
 
@@ -1674,7 +1675,6 @@ emulator_loop(void *param)
 		step6502();
 		uint32_t clocks = clockticks6502 - old_clockticks6502;
 		old_clockticks6502 = clockticks6502;
-		bool new_frame = false;
 		via1_step(clocks);
 		vera_spi_step(MHZ, clocks);
 		if (has_serial) {
@@ -1699,6 +1699,7 @@ emulator_loop(void *param)
 		midi_serial_step(clocks);
 
 		if (!headless && new_frame) {
+			new_frame = false;
 			if (nvram_dirty && nvram_path) {
 				SDL_RWops *f = SDL_RWFromFile(nvram_path, "wb");
 				if (f) {
