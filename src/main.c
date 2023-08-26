@@ -1038,7 +1038,10 @@ printf("ROM loaded %u (%02X %02X ... %02X %02X)\n\n", rom_size, ROM[0], ROM[1], 
 	emscripten_set_main_loop(emscripten_main_loop, 0, 0);
 #endif
 	if (!headless) {
-		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO);
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS /*| SDL_INIT_GAMECONTROLLER*/ | SDL_INIT_AUDIO)) {
+			fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+			exit(-1);
+		}
 		audio_init(audio_dev_name, audio_buffers);
 		video_init(window_scale, screen_x_scale, scale_quality, fullscreen, window_opacity);
 	}
