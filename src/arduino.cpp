@@ -23,16 +23,17 @@ extern "C" void vga_init()
   EVE_cmd_dl(DL_CLEAR_COLOR_RGB | 0x000000); /* set the default clear color to black */
   EVE_cmd_dl(DL_CLEAR | CLR_COL);            /* clear the screen - this and the previous prevent artifacts between lists, attributes are the color, stencil and tag buffers */
 
+  constexpr uint32_t BPP = 1; // bytes per pixel
   EVE_cmd_dl(BITMAP_HANDLE(1));
-  EVE_cmd_dl(BITMAP_SOURCE(0x0000));
-  EVE_cmd_dl(BITMAP_LAYOUT_H(SCREEN_WIDTH * 2, SCREEN_HEIGHT));
-  EVE_cmd_dl(BITMAP_LAYOUT(/*EVE_PALETTED565*/EVE_RGB565, SCREEN_WIDTH * 2, SCREEN_HEIGHT));
+  EVE_cmd_dl(BITMAP_SOURCE(0x1000));
+  EVE_cmd_dl(BITMAP_LAYOUT_H(SCREEN_WIDTH * BPP, SCREEN_HEIGHT));
+  EVE_cmd_dl(BITMAP_LAYOUT(EVE_PALETTED565, SCREEN_WIDTH * BPP, SCREEN_HEIGHT));
   EVE_cmd_dl(BITMAP_TRANSFORM_E(128));  // double height
   EVE_cmd_dl(BITMAP_SIZE_H(SCREEN_WIDTH, SCREEN_HEIGHT * 2));
   EVE_cmd_dl(BITMAP_SIZE(EVE_NEAREST, EVE_BORDER, EVE_BORDER, SCREEN_WIDTH, SCREEN_HEIGHT * 2));
-  // EVE_cmd_dl(PALETTE_SOURCE(0x0));
+  EVE_cmd_dl(PALETTE_SOURCE(0x0));
   EVE_cmd_dl(DL_BEGIN | EVE_BITMAPS);
-  EVE_cmd_dl(VERTEX2II(0, 0 * 2, 1, 0));
+  EVE_cmd_dl(VERTEX2II(0, 0 * BPP, 1, 0));
   EVE_cmd_dl(DL_END);
   EVE_cmd_dl(DL_DISPLAY); /* mark the end of the display-list */
   EVE_cmd_dl(CMD_SWAP);   /* make this list active */
@@ -42,17 +43,25 @@ extern "C" void vga_init()
 }
 
 constexpr uint32_t pixel_offset(int x, int y) {
-  return (y * SCREEN_WIDTH + x) * 2;
+  return (y * SCREEN_WIDTH + x) * 1;
 }
 
-extern "C" void vga_display(void* framebuffer)
+extern "C" void vga_display(void* framebuffer, void* palette)
 {
-  for (int y=0; y<SCREEN_HEIGHT; y+=2)
+  long now = millis();
+
+  EVE_memWrite_sram_buffer(0x0, (uint8_t *)palette, 2*256);
+
+  constexpr int ROWS = 32;
+  for (int y=0; y<SCREEN_HEIGHT; y+=ROWS)
   {
     //esp_cache_msync(&panel->fbs[panel->bb_fb_index][panel->bounce_pos_px * bytes_per_pixel], (size_t)panel->bb_size, ESP_CACHE_MSYNC_FLAG_INVALIDATE);
-    Cache_WriteBack_Addr((uint32_t)framebuffer + pixel_offset(0, y), pixel_offset(0, 2));
-    EVE_memWrite_sram_buffer(pixel_offset(0, y), (uint8_t *)framebuffer + pixel_offset(0, y), pixel_offset(0, 2));
+    Cache_WriteBack_Addr((uint32_t)framebuffer + pixel_offset(0, y), pixel_offset(0, ROWS));
+    EVE_memWrite_sram_buffer(0x1000 + pixel_offset(0, y), (uint8_t *)framebuffer + pixel_offset(0, y), pixel_offset(0, ROWS));
   }
+
+  now = millis() - now;
+  printf("Blit VGA = %li ms\n", now);
 }
 
 void setup() {
@@ -232,8 +241,6 @@ vga_poll_event(SDL_Event * event)
         KEY(SDL_SCANCODE_LEFTBRACKET);
       else if (c == ']')
         KEY(SDL_SCANCODE_RIGHTBRACKET);
-      else if (c == '£')
-        KEY(SDL_SCANCODE_BACKSLASH);
       else if (c == '(')
         SHIFT_KEY(SDL_SCANCODE_9);
       else if (c == ')')
@@ -288,7 +295,7 @@ void loop()
 {
   SDL_setenv("SDL_VIDEODRIVER","dummy",1);
   SDL_setenv("SDL_AUDIODRIVER","dummy",1);
-  const char* argv[] = { "x16emu", /*"-sound", "none", "-log", "KS"*/ };
+  const char* argv[] = { "x16emu", "-mhz", "1", /*"-log", "KS"*/ };
   main(sizeof(argv)/sizeof(*argv), argv);
 
   extern uint8_t* ROM;
