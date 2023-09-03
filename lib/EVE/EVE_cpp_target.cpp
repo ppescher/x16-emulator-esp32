@@ -84,7 +84,7 @@ void EVE_init_spi(void)
     buscfg.quadwp_io_num = EVE_GPIO0;//-1;
     buscfg.quadhd_io_num = EVE_GPIO1;//-1;
     buscfg.flags = SPICOMMON_BUSFLAG_QUAD;
-    buscfg.max_transfer_sz = 640*8;
+    buscfg.max_transfer_sz = 640*32;
 
     devcfg.clock_speed_hz = SPI_MASTER_FREQ_26M; /* clock = 16 MHz */
     devcfg.flags = SPI_DEVICE_HALFDUPLEX;

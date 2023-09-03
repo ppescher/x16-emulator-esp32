@@ -84,7 +84,8 @@
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
-static SDL_Texture *sdlTexture;
+static SDL_Surface *surface;
+//static SDL_Texture *sdlTexture;
 static bool is_fullscreen = false;
 bool mouse_grabbed = false;
 bool kernal_mouse_enabled = false;
@@ -184,6 +185,7 @@ uint32_t ntsc_half_cnt;
 uint16_t ntsc_scan_pos_y;
 int frame_count = 0;
 
+#if ESP_PLATFORM
 typedef union {
 	struct {
 	uint16_t b : 5;
@@ -192,8 +194,21 @@ typedef union {
 	};
 	uint16_t v;
 } pixel_t;
+#endif
 
-static pixel_t *framebuffer = NULL;
+struct video_palette
+{
+#if ESP_PLATFORM
+	pixel_t entries[256];
+#else
+	SDL_Color entries[256];
+#endif
+	bool dirty;
+};
+
+struct video_palette video_palette;
+
+static uint8_t *framebuffer = NULL;
 #ifndef __EMSCRIPTEN__
 static uint8_t *png_buffer = NULL;
 #endif
@@ -310,7 +325,7 @@ video_init(int window_scale, float screen_x_scale, const char *quality, bool ful
 {
 	uint32_t window_flags = SDL_WINDOW_ALLOW_HIGHDPI;
 	
-	framebuffer = calloc(SCREEN_WIDTH * SCREEN_HEIGHT, sizeof(pixel_t));
+	framebuffer = calloc(SCREEN_WIDTH * SCREEN_HEIGHT, sizeof(*framebuffer));
 
 #if ESP_PLATFORM
 	extern void vga_init();
@@ -334,10 +349,9 @@ printf("Video RAM = %p framebuffer = %p\n", video_ram, framebuffer);
 #endif
 	SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH * screen_x_scale, SCREEN_HEIGHT);
 
-	sdlTexture = SDL_CreateTexture(renderer,
-									SDL_PIXELFORMAT_RGB565,
-									SDL_TEXTUREACCESS_STREAMING,
-									SCREEN_WIDTH, SCREEN_HEIGHT);
+	surface = SDL_ConvertSurfaceFormat(SDL_GetWindowSurface(window),
+									SDL_PIXELFORMAT_INDEX8,
+									0);
 
 	SDL_SetWindowTitle(window, WINDOW_TITLE);
 	SDL_SetWindowIcon(window, CommanderX16Icon());
@@ -413,19 +427,19 @@ struct video_layer_properties
 struct video_layer_properties layer_properties[NUM_LAYERS];
 struct video_layer_properties prev_layer_properties[2][NUM_LAYERS];
 
-static int
+inline static int
 calc_layer_eff_x(const struct video_layer_properties *props, const int x)
 {
 	return (x + props->hscroll) & (props->layerw_max);
 }
 
-static int
+inline static int
 calc_layer_eff_y(const struct video_layer_properties *props, const int y)
 {
 	return (y + props->vscroll) & (props->layerh_max);
 }
 
-static uint32_t
+inline static uint32_t
 calc_layer_map_addr_base2(const struct video_layer_properties *props, const int eff_x, const int eff_y)
 {
 	// Slightly faster on some platforms because we know that tilew and tileh are powers of 2.
@@ -562,9 +576,9 @@ screenshot(void)
 
 	// The framebuffer stores pixels in BRGA but we want RGB:
 	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
-		png_buffer[(i*3)+0] = framebuffer[i].r;
-		png_buffer[(i*3)+1] = framebuffer[i].g;
-		png_buffer[(i*3)+2] = framebuffer[i].b;
+		png_buffer[(i*3)+0] = video_palette.entries[framebuffer[i]].r;
+		png_buffer[(i*3)+1] = video_palette.entries[framebuffer[i]].g;
+		png_buffer[(i*3)+2] = video_palette.entries[framebuffer[i]].b;
 	}
 
 	if (stbi_write_png(path, SCREEN_WIDTH, SCREEN_HEIGHT, 3, png_buffer, SCREEN_WIDTH*3)) {
@@ -609,14 +623,6 @@ refresh_sprite_properties(const uint16_t sprite)
 	props->palette_offset = (sprite_data[sprite][7] & 0x0f) << 4;
 }
 
-struct video_palette
-{
-	pixel_t entries[256];
-	bool dirty;
-};
-
-struct video_palette video_palette;
-
 static void
 refresh_palette() {
 	const uint8_t out_mode = reg_composer[0] & 3;
@@ -642,9 +648,16 @@ refresh_palette() {
 		}
 
 		//video_palette.entries[i] = (uint32_t)(r << 16) | ((uint32_t)g << 8) | ((uint32_t)b);
+#if ESP_PLATFORM
 		video_palette.entries[i].r = r >> 3;
 		video_palette.entries[i].g = g >> 2;
 		video_palette.entries[i].b = b >> 3;
+#else
+		video_palette.entries[i].r = r;
+		video_palette.entries[i].g = g;
+		video_palette.entries[i].b = b;
+		video_palette.entries[i].a = 255;
+#endif
 	}
 	video_palette.dirty = false;
 }
@@ -982,7 +995,7 @@ render_layer_line_bitmap(uint8_t layer, uint16_t y)
 	}
 }
 
-static uint8_t calculate_line_col_index(uint8_t spr_zindex, uint8_t spr_col_index, uint8_t l1_col_index, uint8_t l2_col_index)
+inline static uint8_t calculate_line_col_index(uint8_t spr_zindex, uint8_t spr_col_index, uint8_t l1_col_index, uint8_t l2_col_index)
 {
 	uint8_t col_index = 0;
 	switch (spr_zindex) {
@@ -1088,9 +1101,10 @@ render_line(uint16_t y, uint32_t scan_pos_x)
 	// clear layer_line if layer gets disabled
 	for (uint8_t layer = 0; layer < 2; layer++) {
 		if (!layer_line_enable[layer] && old_layer_line_enable[layer]) {
-			for (uint16_t i = s_pos_x_p; i < SCREEN_WIDTH; i++) {
-				layer_line[layer][i] = 0;
-			}
+			memset(&layer_line[layer][s_pos_x_p], 0, SCREEN_WIDTH - s_pos_x_p);
+			//for (uint16_t i = s_pos_x_p; i < SCREEN_WIDTH; i++) {
+			//	layer_line[layer][i] = 0;
+			//}
 		}
 		if (s_pos_x_p == 0)
 			old_layer_line_enable[layer] = layer_line_enable[layer];
@@ -1098,11 +1112,14 @@ render_line(uint16_t y, uint32_t scan_pos_x)
 
 	// clear sprite_line if sprites get disabled
 	if (!sprite_line_enable && old_sprite_line_enable) {
-		for (uint16_t i = s_pos_x_p; i < SCREEN_WIDTH; i++) {
-			sprite_line_col[i] = 0;
-			sprite_line_z[i] = 0;
-			sprite_line_mask[i] = 0;
-		}
+		memset(&sprite_line_col[s_pos_x_p], 0, SCREEN_WIDTH - s_pos_x_p);
+		memset(&sprite_line_z[s_pos_x_p], 0, SCREEN_WIDTH - s_pos_x_p);
+		memset(&sprite_line_mask[s_pos_x_p], 0, SCREEN_WIDTH - s_pos_x_p);
+		//for (uint16_t i = s_pos_x_p; i < SCREEN_WIDTH; i++) {
+		//	sprite_line_col[i] = 0;
+		//	sprite_line_z[i] = 0;
+		//	sprite_line_mask[i] = 0;
+		//}
 	}
 
 	if (s_pos_x_p == 0)
@@ -1114,7 +1131,7 @@ render_line(uint16_t y, uint32_t scan_pos_x)
 		render_sprite_line(eff_y);
 	}
 
-	if (warp_mode && (frame_count & 63)) {
+	if (warp_mode && (frame_count & 3)) {
 		// sprites were needed for the collision IRQ, but we can skip
 		// everything else if we're in warp mode, most of the time
 		return;
@@ -1168,17 +1185,17 @@ render_line(uint16_t y, uint32_t scan_pos_x)
 	}
 
 	// Look up all color indices.
-	pixel_t* framebuffer4_begin = framebuffer + (y * SCREEN_WIDTH) + s_pos_x_p;
+	uint8_t* framebuffer4_begin = framebuffer + (y * SCREEN_WIDTH) + s_pos_x_p;
 	{
-		pixel_t* framebuffer4 = framebuffer4_begin;
+		uint8_t* framebuffer4 = framebuffer4_begin;
 		for (uint16_t x = s_pos_x_p; x < s_pos_x; x++) {
-			*framebuffer4++ = video_palette.entries[col_line[x]];
+			*framebuffer4++ = col_line[x];
 		}
 	}
 
 	// NTSC overscan
 	if (out_mode == 2) {
-		pixel_t* framebuffer4 = framebuffer4_begin;
+		uint8_t* framebuffer4 = framebuffer4_begin;
 		for (uint16_t x = s_pos_x_p; x < s_pos_x; x++)
 		{
 			if (x < SCREEN_WIDTH * TITLE_SAFE_X ||
@@ -1187,8 +1204,8 @@ render_line(uint16_t y, uint32_t scan_pos_x)
 				y > SCREEN_HEIGHT * (1 - TITLE_SAFE_Y)) {
 
 				// Divide RGB elements by 4.
-				framebuffer4->v &= 0x00fcfcfc;
-				framebuffer4->v >>= 2;
+				//framebuffer4->v &= 0x00fcfcfc;
+				//framebuffer4->v >>= 2;
 			}
 			framebuffer4++;
 		}
@@ -1331,7 +1348,7 @@ video_update()
 	static bool cmd_down = false;
 
 	bool mouse_changed = false;
-
+/*
 	// for activity LED, overlay red 8x4 square into top right of framebuffer
 	// for progressive modes, draw LED only on even scanlines
 	for (int y = 0; y < 4; y+=1+!!((reg_composer[0] & 0x0b) > 0x09)) {
@@ -1347,12 +1364,29 @@ video_update()
 			framebuffer[y * SCREEN_WIDTH + x].r = r;
 		}
 	}
-
+*/
 #if ESP_PLATFORM
-	extern void vga_display(void* framebuffer);
-	vga_display(framebuffer);
+	extern void vga_display(void* framebuffer, void* palette);
+	vga_display(framebuffer, video_palette.entries);
 #else
-	SDL_UpdateTexture(sdlTexture, NULL, framebuffer, SCREEN_WIDTH * sizeof(pixel_t));
+	//SDL_UpdateTexture(sdlTexture, NULL, framebuffer, SCREEN_WIDTH * sizeof(*framebuffer));
+	SDL_LockSurface(surface);
+	SDL_memcpy(surface->pixels, framebuffer, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*framebuffer));
+	SDL_UnlockSurface(surface);
+
+	SDL_SetPaletteColors(surface->format->palette, video_palette.entries, 0, 256);
+	SDL_BlitSurface(surface, NULL, SDL_GetWindowSurface(window), NULL);
+	SDL_UpdateWindowSurface(window);
+	/*
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, sdlTexture, NULL, NULL);
+
+	if (debugger_enabled && showDebugOnRender != 0) {
+		DEBUGRenderDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
+	}
+
+	SDL_RenderPresent(renderer);
+	*/
 #endif
 
 	if (record_gif > RECORD_GIF_PAUSED) {
@@ -1367,18 +1401,8 @@ video_update()
 		}
 	}
 
-#if !ESP_PLATFORM
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, sdlTexture, NULL, NULL);
-
-	if (debugger_enabled && showDebugOnRender != 0) {
-		DEBUGRenderDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
-		SDL_RenderPresent(renderer);
+	if (debugger_enabled && showDebugOnRender != 0)
 		return true;
-	}
-
-	SDL_RenderPresent(renderer);
-#endif
 
 	SDL_Event event;
 #if ESP_PLATFORM
@@ -1660,7 +1684,7 @@ fx_affine_prefetch(void)
 // Vera: Internal Video Address Space
 //
 
-uint8_t
+inline uint8_t
 video_space_read(uint32_t address)
 {
 	return video_ram[address & 0x1FFFF];
@@ -2025,7 +2049,7 @@ void video_write(uint8_t reg, uint8_t value) {
 				// progressive mode on, clear the framebuffer
 				if (((reg_composer[0] & 0x8) == 0 && (value & 0x8)) ||
 					((reg_composer[0] & 0x3) == 1 && (value & 0x3) > 1 && (value & 0x8))) {
-					memset(framebuffer, 0x00, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(pixel_t));
+					memset(framebuffer, 0x00, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*framebuffer));
 				}
 
 				// interlace field bit is read-only
