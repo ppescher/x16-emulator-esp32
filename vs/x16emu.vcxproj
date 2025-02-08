@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\libunistd\unistd\clock_gettime.cpp" />
     <ClCompile Include="..\..\libunistd\unistd\dirent.cpp" />
+    <ClCompile Include="..\..\libunistd\unistd\pthread.cpp" />
     <ClCompile Include="..\..\libunistd\unistd\unistd.cpp" />
     <ClCompile Include="..\src\audio.c" />
     <ClCompile Include="..\src\cartridge.c" />
@@ -41,6 +42,7 @@
     <ClCompile Include="..\src\keyboard.c" />
     <ClCompile Include="..\src\main.c" />
     <ClCompile Include="..\src\memory.c" />
+    <ClCompile Include="..\src\midi.c" />
     <ClCompile Include="..\src\rendertext.c" />
     <ClCompile Include="..\src\rtc.c" />
     <ClCompile Include="..\src\sdcard.c" />
@@ -53,6 +55,7 @@
     <ClCompile Include="..\src\vera_spi.c" />
     <ClCompile Include="..\src\via.c" />
     <ClCompile Include="..\src\video.c" />
+    <ClCompile Include="..\src\video_win32.c" />
     <ClCompile Include="..\src\wav_recorder.c" />
     <ClCompile Include="..\src\ymglue.cpp" />
   </ItemGroup>

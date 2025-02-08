@@ -4,6 +4,7 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <string.h>
 #include "glue.h"
 #include "midi.h"
 #include "audio.h"
@@ -15,6 +16,11 @@
     #define LOAD_LIBRARY(name) LoadLibrary(name)
     #define GET_FUNCTION(lib, name) (void *)GetProcAddress(lib, name)
     #define CLOSE_LIBRARY(lib) FreeLibrary(lib)
+#elif ESP_PLATFORM
+    #define LIBRARY_TYPE void*
+    #define LOAD_LIBRARY(name) NULL
+    #define GET_FUNCTION(lib, name) NULL
+    #define CLOSE_LIBRARY(lib) 
 #else
     #include <dlfcn.h>
     #define LIBRARY_TYPE void*

@@ -165,11 +165,11 @@ static uint16_t getvalue(bool use16Bit) {
     }
     return read6502(ea);
 }
-
+/*
 static uint16_t getvalue16() {
     return((uint16_t)read6502(ea) | ((uint16_t)read6502(ea+1) << 8));
 }
-
+*/
 static void putvalue(uint16_t saveval, bool use16Bit) {
     if (addrtable[opcode] == acc) {
         if (use16Bit) {

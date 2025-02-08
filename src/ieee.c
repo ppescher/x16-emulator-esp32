@@ -2038,7 +2038,7 @@ MCIOUT(uint16_t addr, uint16_t *c, uint8_t stream_mode)
 {
 	if (listening) {
 		int ret = 0;
-		int count = *c ?: 256;
+		int count = *c ? *c : 256;
 		uint8_t ram_bank = read6502(0);
 		int i = 0;
 		if (channels[channel].f && channels[channel].write) {
