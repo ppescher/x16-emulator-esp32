@@ -123,6 +123,15 @@
     <ClCompile Include="..\..\libunistd\unistd\clock_gettime.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\midi.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video_win32.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libunistd\unistd\pthread.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\audio.h">
